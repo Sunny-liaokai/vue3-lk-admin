@@ -1,10 +1,10 @@
 /**
  * 路由警卫
  */
+import NProgress from "nprogress";
 import type { Router } from "vue-router";
 import Storage from "@/util/Storage";
 import { TOKEN_KEY } from "@/util/constant";
-import NProgress from "nprogress";
 
 NProgress.configure({ showSpinner: false }); // NProgress Configuration
 
@@ -15,15 +15,14 @@ export function createRouterGuards(router: Router) {
     NProgress.start();
     const token = Storage.get(TOKEN_KEY);
 
-    if (token) {// 已经登陆且访问的是login页面
+    if (token) {
+      // 已经登陆且访问的是login页面
       if (to.name === "Login") {
         next({ path: defaultRoutePath });
         NProgress.done();
       } else {
-
       }
     } else {
-
     }
     next();
   });

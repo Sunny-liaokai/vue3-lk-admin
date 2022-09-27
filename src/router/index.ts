@@ -1,7 +1,8 @@
-import type { RouteRecordRaw } from "vue-router";
 import { createRouter, createWebHashHistory } from "vue-router";
-import type { App } from "vue";
 import { createRouterGuards } from "./router-guards";
+import type { RouteRecordRaw } from "vue-router";
+
+import type { App } from "vue";
 
 export const routes: Array<RouteRecordRaw> = [
   {

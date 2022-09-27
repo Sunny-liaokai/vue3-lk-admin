@@ -76,10 +76,11 @@ import {
   LockOutlined,
   SafetyOutlined
 } from "@ant-design/icons-vue";
-import { getImageCaptcha } from "@/api/login";
-import { message, Modal } from "ant-design-vue";
-import { userUserStore } from "@/store/modules/user";
 import { useRoute, useRouter } from "vue-router";
+import { message, Modal } from "ant-design-vue";
+import { getImageCaptcha } from "@/api/login";
+
+import { userUserStore } from "@/store/modules/user";
 
 defineComponent({
   name: "Login-a"

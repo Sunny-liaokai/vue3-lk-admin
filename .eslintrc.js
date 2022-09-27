@@ -3,9 +3,17 @@ module.exports = {
   env: {
     browser: true,
     node: true,
-    es6: true
+    es6: true,
+    "vue/setup-compiler-macros": true
   },
   parser: "vue-eslint-parser",
+  globals: {
+    defineProps: "readonly",
+    defineEmits: "readonly",
+    defineExpose: "readonly",
+    withDefaults: "readonly",
+    API: "readonly"
+  },
   parserOptions: {
     parser: "@typescript-eslint/parser",
     ecmaVersion: 2020,
@@ -32,6 +40,7 @@ module.exports = {
     }
   ],
   rules: {
+    "no-empty": "off",
     "@typescript-eslint/no-explicit-any": "off",
     "@typescript-eslint/no-unused-vars": "off",
     "@typescript-eslint/no-var-requires": "off",
