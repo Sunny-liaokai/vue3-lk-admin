@@ -12,6 +12,8 @@
     "useDefineForClassFields": true,
     "sourceMap": true,
     "baseUrl": ".",
+    "resolveJsonModule": true,
+    "noImplicitAny": false,
     "types": [
       "webpack-env"
     ],
@@ -32,6 +34,7 @@
     "src/**/*.tsx",
     "src/**/*.vue",
     "tests/**/*.ts",
+    "src/**/*.d.ts",
     "tests/**/*.tsx"
   ],
   "exclude": [

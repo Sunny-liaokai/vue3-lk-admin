@@ -50,7 +50,7 @@ service.interceptors.response.use(
   (error) => {
     // 处理 400 或者 500 401 的错误异常提示
     const errMsg = error?.response?.data?.message ?? UNKNOWN_ERROR;
-    $message.error(errMsg);
+    $message.error(errMsg).then();
     error.message = errMsg;
     return Promise.reject(error);
   }
