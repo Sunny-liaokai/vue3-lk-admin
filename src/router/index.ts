@@ -1,26 +1,41 @@
-import { createRouter, createWebHistory, RouteRecordRaw } from "vue-router";
-import HomeView from "../views/HomeView.vue";
+import type { RouteRecordRaw } from "vue-router";
+import { createRouter, createWebHashHistory } from "vue-router";
+import type { App } from "vue";
+import { createRouterGuards } from "./router-guards";
 
-const routes: Array<RouteRecordRaw> = [
+export const routes: Array<RouteRecordRaw> = [
   {
     path: "/",
-    name: "home",
-    component: HomeView,
+    redirect: "/Home/welcome",
+    component: () => import("@/layout/index.vue"),
+    name: "Layout",
+    meta: { title: "首页" },
+    children: []
   },
   {
-    path: "/about",
-    name: "about",
-    // route level code-splitting
-    // this generates a separate chunk (about.[hash].js) for this route
-    // which is lazy-loaded when the route is visited.
-    component: () =>
-      import(/* webpackChunkName: "about" */ "../views/AboutView.vue"),
-  },
+    path: "/login",
+    name: "LOGIN_NAME",
+    component: () => import("@/views/login.vue"),
+    meta: {
+      title: "登录"
+    }
+  }
 ];
 
-const router = createRouter({
-  history: createWebHistory(process.env.BASE_URL),
-  routes,
+export const router = createRouter({
+  history: createWebHashHistory(""),
+  routes
 });
+
+//加载路由
+export async function setupRouter(app: App) {
+  //创建路由守卫
+  createRouterGuards(router);
+  //挂载路由
+  app.use(router);
+
+  //路由准备就绪后挂着App实例
+  await router.isReady();
+}
 
 export default router;
