@@ -44,6 +44,7 @@ module.exports = {
     "@typescript-eslint/no-explicit-any": "off",
     "@typescript-eslint/no-unused-vars": "off",
     "@typescript-eslint/no-var-requires": "off",
+    "@typescript-eslint/no-non-null-assertion": "off", //允许使用非空断言
     "vue/component-definition-name-casing": "off",
     "vue/multi-word-component-names": "off", //vue组件名称是否遵循大小小命令名
     // vue

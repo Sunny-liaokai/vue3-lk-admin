@@ -1,31 +1,36 @@
 import { defineStore } from "pinia";
-import { RouteRecordRaw } from "vue-router";
-import { Storage } from "@/util/Storage";
+import type { RouteRecordRaw } from "vue-router";
+import { store } from "@/store";
 import { login } from "@/api/login";
-import { TOKEN_KEY } from "@/util/constant";
-import { getPermissionsAndMenus, getUserInfo } from "@/api/account";
-import { dynamicAddRouter } from "@/router/dynamicRouter";
+import { ACCESS_TOKEN_KEY } from "@/enums/cacheEnum";
+import { Storage } from "@/util/Storage";
+import { getUserInfo, getPermissionsAndMenus } from "@/api/account";
+import { generatorDynamicRouter } from "@/router/dynamicRouter";
+
+// import { resetRouter } from '@/router';
 
 interface UserState {
-  token: string;
+  token: string | null;
   name: string;
   avatar: string;
+  // like [ 'sys:user:add', 'sys:user:update' ]
   perms: string[];
   menus: RouteRecordRaw[];
-  userinfo: Partial<API.AdminUserInfo>; // Partial变为可选
+  userInfo: Partial<API.AdminUserInfo>;
 }
 
-export const userUserStore = defineStore("user", {
+export const useUserStore = defineStore({
+  id: "user",
   state: (): UserState => ({
-    token: "",
-    name: "root",
+    token: Storage.get(ACCESS_TOKEN_KEY, null),
+    name: "amdin",
     avatar: "",
     perms: [],
     menus: [],
-    userinfo: {}
+    userInfo: {}
   }),
   getters: {
-    getToken(): string {
+    getToken(): string | null {
       return this.token;
     },
     getAvatar(): string {
@@ -39,17 +44,25 @@ export const userUserStore = defineStore("user", {
     }
   },
   actions: {
+    /** 清空token及用户信息 */
+    resetToken() {
+      this.avatar = this.token = this.name = "";
+      this.perms = [];
+      this.menus = [];
+      this.userInfo = {};
+      Storage.clear();
+    },
     /** 登录成功保存token */
     setToken(token: string) {
       this.token = token ?? "";
-      // 7天
       const ex = 7 * 24 * 60 * 60 * 1000;
-      Storage.set(TOKEN_KEY, this.token, ex);
+      Storage.set(ACCESS_TOKEN_KEY, this.token, ex);
     },
     /** 登录 */
     async login(params: API.LoginParams) {
       try {
         const data = await login(params);
+
         this.setToken(data.token);
         return this.afterLogin();
       } catch (error) {
@@ -59,16 +72,36 @@ export const userUserStore = defineStore("user", {
     /** 登录成功之后, 获取用户信息以及生成权限路由 */
     async afterLogin() {
       try {
-        const [userInfo, { perms, menus }] = await Promise.all([getUserInfo(), getPermissionsAndMenus()]);
-        this.userinfo = userInfo;
+        const [userInfo, { perms, menus }] = await Promise.all([
+          getUserInfo(),
+          getPermissionsAndMenus()
+        ]);
         this.perms = perms;
-        this.avatar = userInfo.headImg;
         this.name = userInfo.name;
-        //TODO 生成路由
-        const routers = dynamicAddRouter(menus);
-      } catch (e) {
-        return Promise.reject(e);
+        this.avatar = userInfo.headImg;
+        this.userInfo = userInfo;
+        // 生成路由
+        const generatorResult = await generatorDynamicRouter(menus);
+        this.menus = generatorResult.menus.filter(
+          (item) => !item.meta?.hideInMenu
+        );
+
+        return { menus, perms, userInfo };
+      } catch (error) {
+        return Promise.reject(error);
+        // return this.logout();
       }
+    },
+    /** 登出 */
+    async logout() {
+      // await logout();
+      this.resetToken();
+      // resetRouter();
     }
   }
 });
+
+// 在组件setup函数外使用
+export function useUserStoreWithOut() {
+  return useUserStore(store);
+}

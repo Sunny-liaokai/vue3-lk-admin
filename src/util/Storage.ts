@@ -8,7 +8,7 @@ const DEFAULT_CACHE_TIME = 60 * 60 * 24 * 7;
  */
 export const createStorage = ({
   prefixKey = "",
-  storage = localStorage,
+  storage = localStorage
 } = {}) => {
   /**
    * 本地缓存类
@@ -30,7 +30,7 @@ export const createStorage = ({
     set(key: string, value: any, expire: number | null = DEFAULT_CACHE_TIME) {
       const stringData = JSON.stringify({
         value,
-        expire: expire !== null ? new Date().getTime() + expire * 1000 : null,
+        expire: expire !== null ? new Date().getTime() + expire * 1000 : null
       });
       this.storage.setItem(this.getKey(key), stringData);
     }
@@ -64,6 +64,13 @@ export const createStorage = ({
      */
     remove(key: string) {
       this.storage.removeItem(this.getKey(key));
+    }
+    /**
+     * 清空所有缓存
+     * @memberOf Cache
+     */
+    clear(): void {
+      this.storage.clear();
     }
   };
 

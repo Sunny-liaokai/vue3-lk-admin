@@ -6,16 +6,11 @@ import { BaseResponse, request } from "@/util/request";
  * @returns
  */
 export function login(data: API.LoginParams) {
-  return request<API.LoginResult>(
-    {
-      url: "login",
-      method: "post",
-      data,
-    },
-    {
-      isGetDataDirectly: false,
-    }
-  );
+  return request<API.LoginResult>({
+    url: "login",
+    method: "post",
+    data
+  });
 }
 
 /**
@@ -26,6 +21,6 @@ export function getImageCaptcha(params?: API.CaptchaParams) {
   return request<API.CaptchaResult>({
     url: "captcha/img",
     method: "get",
-    params,
+    params
   });
 }

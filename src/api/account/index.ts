@@ -19,4 +19,3 @@ export function getUserInfo() {
     method: "get"
   });
 }
-

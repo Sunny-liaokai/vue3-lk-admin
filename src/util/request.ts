@@ -1,7 +1,8 @@
 import axios, { AxiosRequestConfig } from "axios";
 import { message as $message } from "ant-design-vue";
 import { Storage } from "@/util/Storage";
-import { TOKEN_KEY } from "@/util/constant";
+
+import { ACCESS_TOKEN_KEY } from "@/enums/cacheEnum";
 
 const UNKNOWN_ERROR = "未知错误，请重试";
 
@@ -12,7 +13,7 @@ const service = axios.create({
 
 service.interceptors.request.use(
   (config) => {
-    const token = Storage.get(TOKEN_KEY);
+    const token = Storage.get(ACCESS_TOKEN_KEY);
     if (token && config.headers) {
       // 请求头token信息，请根据实际情况进行修改
       config.headers["Authorization"] = token;
@@ -30,39 +31,41 @@ service.interceptors.response.use(
     // if the custom code is not 200, it is judged as an error.
     if (res.code !== 200) {
       $message.error(res.message || UNKNOWN_ERROR);
-
-      // Illegal token
-      if (res.code === 401) {
-        window.localStorage.clear();
-        window.location.reload();
-      }
-
       // throw other
       const error = new Error(res.message || UNKNOWN_ERROR) as Error & {
         code: any;
       };
       error.code = res.code;
-      return Promise.reject(error);
+      // return Promise.reject(error);
     } else {
       return res;
     }
   },
   (error) => {
-    // 处理 400 或者 500 401 的错误异常提示
-    const errMsg = error?.response?.data?.message ?? UNKNOWN_ERROR;
-    $message.error(errMsg).then();
-    error.message = errMsg;
-    return Promise.reject(error);
+    // Illegal token
+    if (error.response.status === 401) {
+      window.localStorage.clear();
+      window.location.reload();
+    } else {
+      // 处理 400 或者 500 401 的错误异常提示
+      const errMsg = error?.response?.data?.message ?? UNKNOWN_ERROR;
+      $message.error(errMsg).then();
+      error.message = errMsg;
+      return Promise.reject(error);
+    }
   }
 );
 
-export const request = async <T>(
+export const request = async <T = any>(
   config: AxiosRequestConfig,
-  options: RequestOptions = {}
+  options: RequestOptions = {
+    isGetDataDirectly: true
+  }
 ): Promise<T> => {
   try {
+    const { isGetDataDirectly } = options;
     const res = await service.request(config);
-    return res.data;
+    return isGetDataDirectly ? res.data : res;
   } catch (error) {
     return Promise.reject(error);
   }

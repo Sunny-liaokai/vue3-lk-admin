@@ -80,10 +80,10 @@ import { useRoute, useRouter } from "vue-router";
 import { message, Modal } from "ant-design-vue";
 import { getImageCaptcha } from "@/api/login";
 
-import { userUserStore } from "@/store/modules/user";
+import { useUserStore } from "@/store/modules/user";
 
 defineComponent({
-  name: "Login-a"
+  name: "Login"
 });
 const state = reactive({
   loading: false,
@@ -98,7 +98,7 @@ const state = reactive({
 const router = useRouter();
 const route = useRoute();
 
-const userStore = userUserStore();
+const userStore = useUserStore();
 
 async function handleSubmit() {
   const { username, password, verifyCode } = state.formInline;
@@ -116,11 +116,12 @@ async function handleSubmit() {
       message.destroy();
     });
     message.success("登录成功！");
+
     setTimeout(() => router.replace((route.query.redirect as string) ?? "/"));
   } catch (error: any) {
     Modal.error({
       title: () => "提示",
-      content: () => error?.message
+      content: () => error?.message || error
     });
     await setCaptcha();
   }
@@ -128,6 +129,7 @@ async function handleSubmit() {
 
 async function setCaptcha() {
   const { id, img } = await getImageCaptcha({ width: 100, height: 50 });
+
   state.captcha = img;
   state.formInline.captchaId = id;
 }
